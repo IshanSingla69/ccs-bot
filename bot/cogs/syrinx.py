@@ -130,6 +130,7 @@ class Syrinx(commands.Cog):
         await self.create_event_entities()
 
     async def create_event_entities(self):
+        created_channel_list = []
         channel_id = 1261630295371681832
         guild: discord.Guild = self.bot.get_guild(self.guild_id)
         if not guild:
@@ -184,7 +185,7 @@ class Syrinx(commands.Cog):
                         title="Welcome to SYRINX, Team " + f"`{team['teamName']}`",
                         description="We are excited to have you participate in this 2D pixelated multiplayer capture-the-flag (CTF) adventure game set in a virtual version of the TIET campus. Explore detailed recreations of campus locations such as Admin Block, G-Block, and CSED, encountering various quests and challenges along the way.\n\n"
                         + "To have a demo of the game, visit https://demo.syrinx.ccstiet.com/ \n\n"
-                        + "Please take a moment to read our guidelines to ensure a smooth and positive experience for everyone.",
+                        + "__Please take a moment to read our guidelines to ensure a smooth and positive experience for everyone.__",
                     )
                     .add_field(
                         name="Team Composition",
@@ -211,10 +212,15 @@ class Syrinx(commands.Cog):
                         value="Hints are provided. Answers are **case-sensitive**.",
                     )
                     .set_thumbnail(url="https://syrinx.ccstiet.com/logo.png")
-                    .set_footer("All the best!")
+                    .set_footer(
+                        text="For any queries, contact Core. Have a great time playing!",
+                        icon_url="https://avatars.githubusercontent.com/u/34922904?s=280&v=4",
+                    )
                 )
 
                 total_created_teams += 1
+
+                created_channel_list.append(created_channel)
 
                 logging.info(f"Created category and role for {team['teamName']}")
 
@@ -222,6 +228,7 @@ class Syrinx(commands.Cog):
                 logging.error(f"Error creating entities for {team['teamName']}: {e}")
 
         if total_created_teams > 0:
+
             await guild.get_channel(channel_id).send(
                 embed=discord.Embed(
                     title="Event Channels Created",
