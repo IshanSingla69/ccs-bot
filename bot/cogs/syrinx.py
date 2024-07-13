@@ -61,7 +61,7 @@ class SyrinxButton(discord.ui.View):
                             )
                     else:
                         await interaction.response.send_message(
-                            f"Role '{team_name}' not found in the server! Please wait atleast for 5 minutes for the role to be created or contact Core.",
+                            f"Role '{team_name}' not found in the server! Please wait at least 5 minutes for the role to be created or contact Core.",
                             ephemeral=True,
                         )
                 else:
@@ -112,20 +112,13 @@ class Syrinx(commands.Cog):
             logging.warning("Channel not found in guild. Aborting on_ready task.")
             return
 
-        if channel.last_message_id == 1261637362098634822:
-            return
         embed = discord.Embed(
-            title="Welcome to Syrinx!",
-            description="You are required to join your team on Discord to participate in the event. You would be provided with a role to access your team's channels (voice and text). Click the button below to join your team.",
+            title="Welcome to Syrinx! Pixels In Pursuit",
+            description="Team CCS is thrilled to have you join us for this exciting event. With over 20 years of experience, the Creative Computing Society aims to foster a vibrant technical environment at TIET. The society has consistently raised the bar on campus, and to uphold this legacy, we proudly present Syrinx!\n\n"
+            + "To participate in the event, you need to join your team on Discord. You will be assigned a role to access your team's channels. Click the button below to join your team.\n\n"
+            + "Kindly ensure that your Discord username matches the one you provided during registration. Use the designated channels for all event-related communication. For any issues or assistance, feel free to contact any team officials. We hope you have an incredible experience! Have adventurous gameplay!",
             colour=0xF8CF1A,
         )
-
-        embed.add_field(
-            name="You are required to use the same Discord username that you provided in the form to register for the event.",
-            value="Also make sure to only use the provided channels for communication.",
-            inline=False,
-        )
-
         embed.set_thumbnail(url="https://syrinx.ccstiet.com/logo.png")
 
         embed.set_footer(text="Contact Core if you have any issues.")
@@ -180,8 +173,46 @@ class Syrinx(commands.Cog):
                     speak=True,
                 )
 
-                await category.create_text_channel(f"📝・{team['teamName']}")
+                created_channel = await category.create_text_channel(
+                    f"📝・{team['teamName']}"
+                )
                 await category.create_voice_channel(f"🔊・{team['teamName']} VC")
+
+                await created_channel.send(
+                    embed=discord.Embed(
+                        color=0xF8CF1A,
+                        title="Welcome to SYRINX, Team " + f"`{team['teamName']}`",
+                        description="We are excited to have you participate in this 2D pixelated multiplayer capture-the-flag (CTF) adventure game set in a virtual version of the TIET campus. Explore detailed recreations of campus locations such as Admin Block, G-Block, and CSED, encountering various quests and challenges along the way.\n\n"
+                        + "To have a demo of the game, visit https://demo.syrinx.ccstiet.com/ \n\n"
+                        + "Please take a moment to read our guidelines to ensure a smooth and positive experience for everyone.",
+                    )
+                    .add_field(
+                        name="Team Composition",
+                        value="Each team can consist of 1-4 players. Ensure all team members are registered.",
+                        inline=False,
+                    )
+                    .add_field(
+                        name="Equipment",
+                        value="Mandatory to use a laptop or desktop with a stable internet connection.",
+                        inline=False,
+                    )
+                    .add_field(
+                        name="Game Levels",
+                        value="● **Level 1**: Easy to medium difficulty; explore G-Block, Admin Block, and CSED.\n● **Level 2**: Medium to hard difficulty.\n● **Level 3**: Harder questions; top teams clinch the victory.",
+                        inline=False,
+                    )
+                    .add_field(
+                        name="Leaderboard",
+                        value="Tracks team progress for each level.",
+                        inline=False,
+                    )
+                    .add_field(
+                        name="Hints and Answers",
+                        value="Hints are provided. Answers are **case-sensitive**.",
+                    )
+                    .set_thumbnail(url="https://syrinx.ccstiet.com/logo.png")
+                    .set_footer("All the best!")
+                )
 
                 total_created_teams += 1
 
@@ -220,7 +251,6 @@ class Syrinx(commands.Cog):
                     inline=False,
                 )
             )
-            total_created_teams = 0
 
     @commands.command()
     @commands.has_any_role(768960824009162802, 1254871511056257144)
