@@ -49,7 +49,10 @@ class SyrinxButton(discord.ui.View):
 
                     if role:
                         try:
-                            await interaction.user.add_roles(role)
+                            role2 = discord.utils.get(
+                                interaction.guild.roles, id=1261730475907481633
+                            )
+                            await interaction.user.add_roles(role, role2)
                             await interaction.response.send_message(
                                 f"You have been assigned to team {team_name}. Please use the provided channels for communication.",
                                 ephemeral=True,  # Only visible to the user
