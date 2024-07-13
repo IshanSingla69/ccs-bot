@@ -114,8 +114,7 @@ class Syrinx(commands.Cog):
 
         embed = discord.Embed(
             title="Welcome to Syrinx! Pixels In Pursuit",
-            description="Team CCS is thrilled to have you join us for this exciting event. With over 20 years of experience, the Creative Computing Society aims to foster a vibrant technical environment at TIET. The society has consistently raised the bar on campus, and to uphold this legacy, we proudly present Syrinx!\n\n"
-            + "To participate in the event, you need to join your team on Discord. You will be assigned a role to access your team's channels. Click the button below to join your team.\n\n"
+            description="To participate in the event, you need to join your team on Discord. You will be assigned a role to access your team's channels. Click the button below to join your team.\n\n"
             + "Kindly ensure that your Discord username matches the one you provided during registration. Use the designated channels for all event-related communication. For any issues or assistance, feel free to contact any team officials. We hope you have an incredible experience! Have adventurous gameplay!",
             colour=0xF8CF1A,
         )
@@ -130,7 +129,6 @@ class Syrinx(commands.Cog):
         await self.create_event_entities()
 
     async def create_event_entities(self):
-        created_channel_list = []
         channel_id = 1261630295371681832
         guild: discord.Guild = self.bot.get_guild(self.guild_id)
         if not guild:
@@ -219,8 +217,6 @@ class Syrinx(commands.Cog):
                 )
 
                 total_created_teams += 1
-
-                created_channel_list.append(created_channel)
 
                 logging.info(f"Created category and role for {team['teamName']}")
 
