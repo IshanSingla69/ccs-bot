@@ -44,7 +44,7 @@ class SyrinxButton(discord.ui.View):
                 team = team_collection.find_one({"teamID": teamID_binary})
 
                 if team:
-                    team_name = team["teamName"]
+                    team_name = str(team["teamName"]).strip()
                     role = discord.utils.get(interaction.guild.roles, name=team_name)
 
                     if role:
@@ -146,19 +146,22 @@ class Syrinx(commands.Cog):
         total_created_teams = 0
 
         for team in teams:
-            category_exists = any(
-                team["teamName"] in category.name for category in guild.categories
+            team_name = str(team["teamName"]).strip()
+            category_or_channel_or_role_exists = any(
+                [
+                    discord.utils.get(guild.categories, name=f"╭──・{team_name}")
+                    is not None,
+                    discord.utils.get(guild.roles, name=team_name) is not None,
+                ]
             )
 
-            if category_exists:
+            if category_or_channel_or_role_exists:
                 continue
 
             try:
-                role = await guild.create_role(
-                    name=team["teamName"], reason="Syrinx Role"
-                )
+                role = await guild.create_role(name=team_name, reason="Syrinx Role")
                 category = await guild.create_category(
-                    f"╭──・{team['teamName']}", reason="Syrinx Category"
+                    f"╭──・{team_name}", reason="Syrinx Category"
                 )
 
                 await category.set_permissions(guild.default_role, view_channel=False)
@@ -175,15 +178,13 @@ class Syrinx(commands.Cog):
                     speak=True,
                 )
 
-                created_channel = await category.create_text_channel(
-                    f"📝・{team['teamName']}"
-                )
-                await category.create_voice_channel(f"🔊・{team['teamName']} VC")
+                created_channel = await category.create_text_channel(f"📝・{team_name}")
+                await category.create_voice_channel(f"🔊・{team_name} VC")
 
                 await created_channel.send(
                     embed=discord.Embed(
                         color=0xF8CF1A,
-                        title="Welcome to SYRINX, Team " + f"`{team['teamName']}`",
+                        title="Welcome to SYRINX, Team " + f"`{team_name}`",
                         description="We are excited to have you participate in this 2D pixelated multiplayer capture-the-flag (CTF) adventure game set in a virtual version of the TIET campus. Explore detailed recreations of campus locations such as Admin Block, G-Block, and CSED, encountering various quests and challenges along the way.\n\n"
                         + "To have a demo of the game, visit https://demo.syrinx.ccstiet.com/ \n\n"
                         + "__Please take a moment to read our guidelines to ensure a smooth and positive experience for everyone.__",
@@ -221,13 +222,12 @@ class Syrinx(commands.Cog):
 
                 total_created_teams += 1
 
-                logging.info(f"Created category and role for {team['teamName']}")
+                logging.info(f"Created category and role for {team_name}")
 
             except Exception as e:
-                logging.error(f"Error creating entities for {team['teamName']}: {e}")
+                logging.error(f"Error creating entities for {team_name}: {e}")
 
         if total_created_teams > 0:
-
             await guild.get_channel(channel_id).send(
                 embed=discord.Embed(
                     title="Event Channels Created",
@@ -240,18 +240,6 @@ class Syrinx(commands.Cog):
                     inline=False,
                 )
                 .add_field(
-                    name="Total Teams",
-                    value=str(collection.count_documents({})),
-                    inline=False,
-                )
-            )
-        else:
-            await guild.get_channel(channel_id).send(
-                embed=discord.Embed(
-                    title="Event Channels Created",
-                    description="No new event channels created",
-                    color=discord.Color.green(),
-                ).add_field(
                     name="Total Teams",
                     value=str(collection.count_documents({})),
                     inline=False,

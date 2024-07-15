@@ -12,7 +12,11 @@ intents.message_content = True
 intents.members = True
 intents.guilds = True
 
-bot = commands.Bot(command_prefix="&", intents=intents)
+activity = discord.Activity(type=discord.ActivityType.competing, name="Syrinx")
+
+bot = commands.Bot(
+    command_prefix="&", intents=intents, activity=activity, status=discord.Status.dnd
+)
 
 initial_extensions = [
     "cogs.roles",
