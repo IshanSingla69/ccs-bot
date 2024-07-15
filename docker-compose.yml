@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  syrinx-bot:
+    build: .
+    container_name: syrinx_bot
+    environment:
+      - TOKEN=${TOKEN}
+    volumes:
+      - .:/app
+    restart: always
