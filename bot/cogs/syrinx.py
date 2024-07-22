@@ -146,7 +146,11 @@ class Syrinx(commands.Cog):
         total_created_teams = 0
 
         for team in teams:
-            team_name = str(team["teamName"]).strip()
+            team_name = team.get("teamName")
+            if not team_name:
+                logging.error(f"Team {team} does not have a 'teamName' field.")
+                continue
+            team_name = str(team_name).strip()
             category_or_channel_or_role_exists = any(
                 [
                     discord.utils.get(guild.categories, name=f"╭──・{team_name}")
