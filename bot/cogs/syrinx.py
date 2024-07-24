@@ -34,7 +34,12 @@ class SyrinxButton(discord.ui.View):
             )
         )
         collection = Config.mongo_client["2024_ctf"]["users"]
-        user = collection.find_one({"discordID": str(interaction.user.name)})
+        user = collection.find_one({
+            "$or": [
+                {"discordID": str(interaction.user.name).strip()},
+                {"discordID": str(interaction.user.id).strip()},
+            ]
+        })
 
         if user:
             teamID_binary = user.get("teamID")
