@@ -34,12 +34,14 @@ class SyrinxButton(discord.ui.View):
             )
         )
         collection = Config.mongo_client["2024_ctf"]["users"]
-        user = collection.find_one({
-            "$or": [
-                {"discordID": str(interaction.user.name).strip()},
-                {"discordID": str(interaction.user.id).strip()},
-            ]
-        })
+        user = collection.find_one(
+            {
+                "$or": [
+                    {"discordID": str(interaction.user.name).strip()},
+                    {"discordID": str(interaction.user.id).strip()},
+                ]
+            }
+        )
 
         if user:
             teamID_binary = user.get("teamID")
@@ -156,41 +158,65 @@ class Syrinx(commands.Cog):
                 logging.error(f"Team {team} does not have a 'teamName' field.")
                 continue
             team_name = str(team_name).strip()
-            category_or_channel_or_role_exists = any(
-                [
-                    discord.utils.get(guild.categories, name=f"╭──・{team_name}")
-                    is not None,
-                    discord.utils.get(guild.roles, name=team_name) is not None,
-                ]
+            channel_exists = discord.utils.get(
+                guild.channels, name=f"🔊・{team_name} VC"
             )
 
-            if category_or_channel_or_role_exists:
+            if channel_exists is not None:
                 continue
 
             try:
-                role = await guild.create_role(name=team_name, reason="Syrinx Role")
-                category = await guild.create_category(
-                    f"╭──・{team_name}", reason="Syrinx Category"
+                get_role = discord.utils.get(guild.roles, name=team_name)
+
+                if not get_role:
+                    await guild.create_role(
+                        name=team_name,
+                        reason="Syrinx Role",
+                    )
+
+                role = discord.utils.get(guild.roles, name=team_name)
+
+                core_role = discord.utils.get(guild.roles, id=993540320740524082)
+                oc_role = discord.utils.get(guild.roles, id=1265970374659543050)
+
+                vc = await guild.create_voice_channel(
+                    f"🔊・{team_name} VC",
+                    reason="Syrinx Channel",
+                    overwrites={
+                        guild.default_role: discord.PermissionOverwrite(
+                            view_channel=False
+                        ),
+                        role: discord.PermissionOverwrite(
+                            view_channel=True,
+                            connect=True,
+                            speak=True,
+                            stream=True,
+                            use_voice_activation=True,
+                            send_messages=True,
+                            read_message_history=True,
+                        ),
+                        core_role: discord.PermissionOverwrite(
+                            view_channel=True,
+                            connect=True,
+                            speak=True,
+                            stream=True,
+                            use_voice_activation=True,
+                            send_messages=True,
+                            read_message_history=True,
+                        ),
+                        oc_role: discord.PermissionOverwrite(
+                            view_channel=True,
+                            connect=True,
+                            speak=True,
+                            stream=True,
+                            use_voice_activation=True,
+                            send_messages=True,
+                            read_message_history=True,
+                        ),
+                    },
                 )
 
-                await category.set_permissions(guild.default_role, view_channel=False)
-
-                role = guild.get_role(role.id)
-
-                await category.set_permissions(
-                    role,
-                    view_channel=True,
-                    read_messages=True,
-                    send_messages=True,
-                    read_message_history=True,
-                    connect=True,
-                    speak=True,
-                )
-
-                created_channel = await category.create_text_channel(f"📝・{team_name}")
-                await category.create_voice_channel(f"🔊・{team_name} VC")
-
-                await created_channel.send(
+                await vc.send(
                     embed=discord.Embed(
                         color=0xF8CF1A,
                         title="Welcome to SYRINX, Team " + f"`{team_name}`",
@@ -300,6 +326,18 @@ class Syrinx(commands.Cog):
                 color=discord.Color.green(),
             )
         )
+
+    @commands.command()
+    @commands.has_any_role(768960824009162802, 1254871511056257144)
+    async def del_chan(self, ctx):
+        guild: discord.Guild = ctx.guild
+        category = guild.get_channel(1265972343159914548)
+        if category:
+            for channel in category.channels:
+                await channel.delete()
+            await ctx.send("Deleted channels")
+        else:
+            await ctx.send("Category not found")
 
 
 async def setup(bot):
